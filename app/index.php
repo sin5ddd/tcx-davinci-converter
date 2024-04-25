@@ -23,7 +23,6 @@
 </head>
 <body>
 
-<pre><?= $tcx->makeJson(); ?></pre>
 
 <table>
 	<tr>
@@ -53,3 +52,6 @@
                                                            ->toXMLString() ?></div>
 </body>
 </html>
+
+<?php
+file_put_contents('davinci.json',$tcx->makeJson());

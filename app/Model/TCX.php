@@ -288,7 +288,7 @@
 					->setGRADE($this->grade[$i])
 					->setPROGRESS($c_dist / $total_dist)
 				;
-				$data[] = $point;
+				$data[$point->getTC()] = $point;
 			}
 			return json_encode($data);
 		}
