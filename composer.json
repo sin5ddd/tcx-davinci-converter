@@ -1,0 +1,21 @@
+{
+  "name": "sin5ddd/tcx-davinci-converter",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "kitayama",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "ext-simplexml": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "app\\Model\\": "app/Model/",
+      "app\\Controller\\": "app/Controller/"
+    }
+  }
+}
