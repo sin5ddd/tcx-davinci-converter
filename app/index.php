@@ -32,7 +32,7 @@
 		<th>grade</th>
 	</tr>
 	<?php
-		for ($i = 0; $i < sizeof($tcx->pos); $i++) { ?>
+		for ($i = 0; $i < sizeof($tcx->latitude); $i++) { ?>
 		<tr>
 			<td><?= number_format($tcx->altitudes[$i],1) ?>m</td>
 			<td><?= number_format($tcx->distance[$i]/1000 ,1) ?>km</td>
@@ -42,6 +42,7 @@
 		</tr>
 		<?php
 		} ?>
+	<div class="svg-container" style="max-width: 50%;"><?= $tcx->makeMapSVG()->toXMLString() ?></div>
 </table>
 </body>
 </html>
