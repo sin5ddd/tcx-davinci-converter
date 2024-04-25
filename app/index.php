@@ -23,6 +23,7 @@
 </head>
 <body>
 
+<pre><?= $tcx->makeJson(); ?></pre>
 
 <table>
 	<tr>

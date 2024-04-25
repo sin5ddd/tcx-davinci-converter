@@ -201,12 +201,12 @@
 			         ->setAttribute('fill', 'none')
 			         ->setAttribute('id', 'MainPath')
 			;
-			$mainPoly = new SVGPolyline();
-			$shadowPoly= new SVGPolyline();
+			$mainPoly   = new SVGPolyline();
+			$shadowPoly = new SVGPolyline();
 			
 			// パス作成
-			$conv_x = ($svgWidth-$margin*2) / sizeof($this->altitudes);
-			$conv_y = ($svgHeight-$margin*2) / $altRange;
+			$conv_x = ($svgWidth - $margin * 2) / sizeof($this->altitudes);
+			$conv_y = ($svgHeight - $margin * 2) / $altRange;
 			for ($i = 0; $i < sizeof($this->altitudes); $i++) {
 				$x = $i * $conv_x + $margin;
 				$y = $svgHeight - ($this->altitudes[$i] - $minAlt) * $conv_y - $margin;
@@ -214,10 +214,10 @@
 				$mainPoly->addPoint($x, $y);
 				$shadowPoly->addPoint($x, $y);
 			}
-			$mainPoly->addPoint($svgWidth-$margin, $svgHeight-$margin/2);
-			$mainPoly->addPoint($margin, $svgHeight-$margin/2);
-			$shadowPoly->addPoint($svgWidth-$margin, $svgHeight-$margin/2);
-			$shadowPoly->addPoint($margin, $svgHeight-$margin/2);
+			$mainPoly->addPoint($svgWidth - $margin, $svgHeight - $margin / 2);
+			$mainPoly->addPoint($margin, $svgHeight - $margin / 2);
+			$shadowPoly->addPoint($svgWidth - $margin, $svgHeight - $margin / 2);
+			$shadowPoly->addPoint($margin, $svgHeight - $margin / 2);
 			$mainPoly
 				->setAttribute('stroke', 'none')
 				->setAttribute('fill', $subColor)
@@ -248,9 +248,9 @@
 		 *
 		 * @param int $framerate
 		 *
-		 * @return void
+		 * @return false|string
 		 */
-		public function makeJson(int $framerate) {
+		public function makeJson(int $framerate = 30) {
 			/**
 			 * Export format:
 			 *
@@ -265,9 +265,32 @@
 			 *     }
 			 * }
 			 */
+			$data       = [];
+			$start_time = $this->time[0];
+			$start_dist = $this->distance[0];
+			$total_dist = $this->distance[sizeof($this->distance) - 1] - $start_dist;
 			for ($i = 0; $i < sizeof($this->latitude); $i++) {
-			
+				$point  = new JSONPoint();
+				$tc     = $this->time[$i]->diff($start_time);
+				$c_dist = $this->distance[$i] - $start_dist;
+				$point
+					->setTC(sprintf('%02d', $tc->h) . ":"
+					        . sprintf('%02d', $tc->m) . ":"
+					        . sprintf('%02d', $tc->i) . ":00")
+					->setHOUR($this->time[$i]->format('H'))
+					->setMIN($this->time[$i]->format('m'))
+					->setSEC($this->time[$i]->format('s'))
+					->setHR($this->hr[$i])
+					->setALT($this->altitudes[$i])
+					->setCAD($this->cadence[$i])
+					->setSPEED($this->speed[$i])
+					->setDIST($c_dist)
+					->setGRADE($this->grade[$i])
+					->setPROGRESS($c_dist / $total_dist)
+				;
+				$data[] = $point;
 			}
+			return json_encode($data);
 		}
 	}
 	
