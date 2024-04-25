@@ -23,8 +23,10 @@
 </head>
 <body>
 
+
 <table>
 	<tr>
+		<th>speed</th>
 		<th>alt</th>
 		<th>dist</th>
 		<th>hr</th>
@@ -33,16 +35,20 @@
 	</tr>
 	<?php
 		for ($i = 0; $i < sizeof($tcx->latitude); $i++) { ?>
-		<tr>
-			<td><?= number_format($tcx->altitudes[$i],1) ?>m</td>
-			<td><?= number_format($tcx->distance[$i]/1000 ,1) ?>km</td>
-			<td><?= $tcx->hr[$i] ?> BPM</td>
-			<td><?= $tcx->cadence[$i] ?> RPM</td>
-			<td><?= $tcx->grade[$i] ?>%</td>
-		</tr>
-		<?php
+			<tr>
+				<td><?= number_format($tcx->speed[$i], 1) ?>kph</td>
+				<td><?= number_format($tcx->altitudes[$i], 1) ?>m</td>
+				<td><?= number_format($tcx->distance[$i] / 1000, 1) ?>km</td>
+				<td><?= $tcx->hr[$i] ?> BPM</td>
+				<td><?= $tcx->cadence[$i] ?> RPM</td>
+				<td><?= $tcx->grade[$i] ?>%</td>
+			</tr>
+			<?php
 		} ?>
-	<div class="svg-container" style="max-width: 50%;"><?= $tcx->makeMapSVG()->toXMLString() ?></div>
 </table>
+<div class='svg-container' style='max-width: 50%;'><?= $tcx->makeMapSVG()
+                                                           ->toXMLString() ?></div>
+<div class='svg-container' style='max-width: 50%;'><?= $tcx->makeGradeSVG()
+                                                           ->toXMLString() ?></div>
 </body>
 </html>
