@@ -1,0 +1,188 @@
+{
+	Tools = ordered() {
+		JsonImporter = GroupOperator {
+			CtrlWZoom = false,
+			NameSet = true,
+			Outputs = {
+				Output6 = InstanceOutput {
+					SourceOp = "HR",
+					Source = "Output",
+				},
+				Output3 = InstanceOutput {
+					SourceOp = "DIST",
+					Source = "Output",
+				},
+				Output5 = InstanceOutput {
+					SourceOp = "CAD",
+					Source = "Output",
+				},
+				Output4 = InstanceOutput {
+					SourceOp = "SPEED",
+					Source = "Output",
+				},
+				Output2 = InstanceOutput {
+					SourceOp = "GRADE",
+					Source = "Output",
+				},
+				Output1 = InstanceOutput {
+					SourceOp = "PROGRESS",
+					Source = "Output",
+				}
+			},
+			ViewInfo = GroupInfo {
+				Pos = { -115, -102.826 },
+				Flags = {
+					Expanded = true,
+					AllowPan = false,
+					AutoSnap = true,
+					RemoveRouters = true
+				},
+				Size = { 453.875, 269.356, 159.937, 24.2424 },
+				Direction = "Horizontal",
+				PipeStyle = "Direct",
+				Scale = 1,
+				Offset = { -162.333, 111.917 }
+			},
+			Tools = ordered() {
+				HR = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "HR", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 253.271, -104.758 } },
+				},
+				CAD = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "CAD", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 253.271, -81.1212 } },
+				},
+				vJSONFromFile1 = Fuse.vJSONFromFile {
+					CtrlWShown = false,
+					Inputs = {
+						Input = Input { Value = "", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 57.3333, 28.5757 } },
+				},
+				DIST = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "DIST", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 254.667, -29.6063 } },
+				},
+				GRADE = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "GRADE", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 262.667, -14.4548 } },
+				},
+				TC = Fuse.vJSONGet {
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "vJSONFromFile1",
+							Source = "Output",
+						},
+						Key = Input {
+							SourceOp = "TimeCode1",
+							Source = "Time",
+						},
+					},
+					ViewInfo = OperatorInfo { Pos = { 158, 14.0303 } },
+				},
+				PROGRESS = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "PROGRESS", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 256, 18.2725 } },
+				},
+				TIME = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "TIME", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 258, 45.5452 } },
+				},
+				HOUR = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "HOUR", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 256, 75.2422 } },
+				},
+				MIN = Fuse.vJSONGet {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "MIN", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 332.667, 93.424 } },
+				},
+				SEC = Fuse.vJSONGet {
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "SEC", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 141.333, 109.788 } },
+				},
+				FRAME = Fuse.vJSONGet {
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "TC",
+							Source = "Output",
+						},
+						Key = Input { Value = "FRAME", },
+					},
+					ViewInfo = OperatorInfo { Pos = { 232.667, 106.757 } },
+				}
+			},
+			UserControls = ordered() { NewControl = { INPID_InputControl = "SliderControl", INP_Integer = false, LINKID_DataType = "Number", LINKS_Name = "新規コントロール", } }
+		},
+		TimeCode1 = TimeCode {
+			CtrlWZoom = false,
+		}
+	}
+}

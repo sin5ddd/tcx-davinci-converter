@@ -59,7 +59,7 @@
 			foreach ($altitudes_raw as $a) {
 				array_pop($a_tmp);
 				array_unshift($a_tmp, $a);
-				$this->altitudes[] = round(array_sum($a_tmp) / $normalize_count, 1);
+				$this->altitudes[] = round(array_sum($a_tmp) / $normalize_count);
 			}
 			$g_tmp = [];
 			for ($i = 0; $i < $normalize_count; $i++) {
@@ -84,8 +84,8 @@
 				}
 				array_pop($g_tmp);
 				array_unshift($g_tmp, $value);
-				$this->grade[] = round(array_sum($g_tmp) / $normalize_count, 1);
-				$this->speed[] = round($d_delta * 3.6, 1);
+				$this->grade[] = round(array_sum($g_tmp) / $normalize_count);
+				$this->speed[] = round($d_delta * 3.6);
 			}
 			// var_dump($this->time[1]->format("H"));die;
 		}
@@ -264,22 +264,31 @@
 			 *         'GRADE': -1.2
 			 *     }
 			 * }
+			 *
+			 * todo: calc easing data per frame from second
+			 * todo: easing data :
 			 */
 			$data       = [];
 			$start_time = $this->time[0];
 			$start_dist = $this->distance[0];
 			$total_dist = $this->distance[sizeof($this->distance) - 1] - $start_dist;
+			$p_point    = null;
+			
 			for ($i = 0; $i < sizeof($this->latitude); $i++) {
-				$point  = new JSONPoint();
-				$tc     = $this->time[$i]->diff($start_time);
-				$c_dist = $this->distance[$i] - $start_dist;
+				
+				/** @var \DateInterval $tc */
+				$tc = $this->time[$i]->diff($start_time);
+				$tc_str = $tc->format("%H:%I:%S:00");
+				$c_dist    = $this->distance[$i] - $start_dist;
+				$point     = new JSONPoint();
+
 				$point
-					->setTC(sprintf('%02d', $tc->h) . ":"
-					        . sprintf('%02d', $tc->m) . ":"
-					        . sprintf('%02d', $tc->i) . ":00")
+					->setTC($tc_str)
 					->setHOUR($this->time[$i]->format('H'))
 					->setMIN($this->time[$i]->format('m'))
 					->setSEC($this->time[$i]->format('s'))
+					->setFRAME('00')
+					->formatTime()
 					->setHR($this->hr[$i])
 					->setALT($this->altitudes[$i])
 					->setCAD($this->cadence[$i])
@@ -288,8 +297,17 @@
 					->setGRADE($this->grade[$i])
 					->setPROGRESS($c_dist / $total_dist)
 				;
-				$data[$point->getTC()] = $point;
+				if ($p_point) {
+					$arr = $point->ease($p_point, $framerate);
+					foreach ($arr as $p) {
+						$data[$p->TC] = $p;
+					}
+				} else {
+					$data[$point->TC] = $point;
+				}
+				$p_point = $point;
 			}
+			
 			return json_encode($data);
 		}
 	}
