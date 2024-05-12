@@ -25,13 +25,15 @@
 		public array  $longitude = [];
 		
 		public array $time;
-		public array $speed     = [];
-		public array $altitudes = [];
+		public array $speed     = [];                    // in KPH
+		public array $altitudes = [];                    // in Meter
 		public array $distance  = [];                    // in Meter
 		public array $hr;                                // in BPM
 		public array $cadence;                           // in RPM
 		public array $grade_raw = [];                    // in percent
 		public array $grade     = [];                    // in percent
+		public array $power     = [];                    // in W
+		public array $progress  = [];                    // in percent
 		
 		public function __construct(string $xml) {
 			$normalize_count = 10;
@@ -39,18 +41,27 @@
 			$this->creator   = $xml->Activities->Activity->Creator->Name;
 			$lap             = $xml->Activities->Activity->Lap;
 			$altitudes_raw   = [];
+			$start_dist      = null;
 			foreach ($lap as $l) {
 				foreach ($l->Track->Trackpoint as $t) {
+					if ($start_dist == null) {
+						$start_dist = floatval($t->DistanceMeters);
+					}
 					$time = new DateTime(strval($t->Time));
 					$time->setTimezone(new \DateTimeZone('Asia/Tokyo'));
 					$this->time[]      = $time;
 					$this->latitude[]  = floatval($t->Position->LatitudeDegrees);
 					$this->longitude[] = floatval($t->Position->LongitudeDegrees);
-					$this->distance[]  = floatval($t->DistanceMeters);
+					$this->distance[]  = (floatval($t->DistanceMeters) - $start_dist) /1000;
 					$this->hr[]        = intval($t->HeartRateBpm->Value);
 					$this->cadence[]   = intval($t->Cadence);
+					$this->power[]     = floatval($t->Power);
 					$altitudes_raw[]   = floatval($t->AltitudeMeters);
 				}
+			}
+			$total_dist = $this->distance[sizeof($this->distance) -1];
+			for ($m = 0; $m < sizeof($this->distance); $m++) {
+				$this->progress[$m] = $this->distance[$m] / $total_dist;
 			}
 			$a_tmp = [];
 			for ($j = 0; $j < $normalize_count; $j++) {
@@ -59,7 +70,7 @@
 			foreach ($altitudes_raw as $a) {
 				array_pop($a_tmp);
 				array_unshift($a_tmp, $a);
-				$this->altitudes[] = round(array_sum($a_tmp) / $normalize_count);
+				$this->altitudes[] = array_sum($a_tmp) / $normalize_count;
 			}
 			$g_tmp = [];
 			for ($i = 0; $i < $normalize_count; $i++) {
@@ -74,17 +85,21 @@
 					$d_delta = $this->distance[$k] - $this->distance[$k - 1];
 				}
 				
-				$value = $d_delta == 0
+				$value = abs($d_delta) < 0.001
 					? 0
 					: $a_delta / $d_delta * 100;
-				if ($k > 0) {
-					if (abs($value) - abs($g_tmp[$normalize_count - 1]) > 10) {
-						$value = $g_tmp[$normalize_count - 1];
-					}
+				if ($value == 0 and $k > 0) {
+					$value = $this->grade[$k - 1];
 				}
-				array_pop($g_tmp);
+				// if ($k > 0) {
+				// 	if (abs($value) - abs($g_tmp[$normalize_count - 1]) > 10) {
+				// 		$value = $g_tmp[$normalize_count - 1];
+				// 	}
+				// }
+				// array_pop($g_tmp);
 				array_unshift($g_tmp, $value);
-				$this->grade[] = round(array_sum($g_tmp) / $normalize_count);
+				// $this->grade[] = round(array_sum($g_tmp) / $normalize_count);
+				$this->grade[] = $value;
 				$this->speed[] = round($d_delta * 3.6);
 			}
 			// var_dump($this->time[1]->format("H"));die;
@@ -277,11 +292,11 @@
 			for ($i = 0; $i < sizeof($this->latitude); $i++) {
 				
 				/** @var \DateInterval $tc */
-				$tc = $this->time[$i]->diff($start_time);
+				$tc     = $this->time[$i]->diff($start_time);
 				$tc_str = $tc->format("%H:%I:%S:00");
-				$c_dist    = $this->distance[$i] - $start_dist;
-				$point     = new JSONPoint();
-
+				$c_dist = $this->distance[$i] - $start_dist;
+				$point  = new JSONPoint();
+				
 				$point
 					->setTC($tc_str)
 					->setHOUR($this->time[$i]->format('H'))
@@ -309,6 +324,38 @@
 			}
 			
 			return json_encode($data);
+		}
+		
+		public function makeSPL(int $framerate = 30) {
+			$data       = [];
+			$start_time = $this->time[0];
+			$start_dist = $this->distance[0];
+			$total_dist = $this->distance[sizeof($this->distance) - 1] - $start_dist;
+			$p_point    = null;
+			$spls       = [
+				new DavinciSPL('HR'),
+				new DavinciSPL('Altitude'),
+				new DavinciSPL('Cadence'),
+				new DavinciSPL('Speed'),
+				new DavinciSPL('Distance'),
+				new DavinciSPL('Grade'),
+				new DavinciSPL('Power'),
+				new DavinciSPL('Progress'),
+			];
+			for ($i = 0; $i < sizeof($this->latitude); $i++) {
+				$spls[0]->addValue($this->hr[$i]);
+				$spls[1]->addValue($this->altitudes[$i]);
+				$spls[2]->addValue($this->cadence[$i]);
+				$spls[3]->addValue($this->speed[$i]);
+				$spls[4]->addValue($this->distance[$i]);
+				$spls[5]->addValue($this->grade[$i]);
+				$spls[6]->addValue($this->power[$i]);
+				$spls[7]->addValue($this->distance[$i] / $total_dist);
+			}
+			
+			foreach ($spls as $s) {
+				$s->generate();
+			}
 		}
 	}
 	

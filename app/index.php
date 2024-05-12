@@ -54,4 +54,5 @@
 </html>
 
 <?php
-file_put_contents('davinci.json',$tcx->makeJson());
+// file_put_contents('davinci.json',$tcx->makeJson());
+	$tcx->makeSPL();
