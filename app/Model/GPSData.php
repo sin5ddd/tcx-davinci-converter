@@ -19,17 +19,18 @@
 		public array  $latitude  = [];
 		public array  $longitude = [];
 		
-		public array $time;
-		public array $speed     = [];                    // in KPH
-		public array $altitudes = [];                    // in Meter
-		public array $distance  = [];                    // in Meter
-		public array $hr;                                // in BPM
-		public array $cadence;                           // in RPM
-		public array $grade_raw = [];                    // in percent
-		public array $grade     = [];                    // in percent
-		public array $power     = [];                    // in W
-		public array $progress  = [];                    // in percent
-		public array $temp      = [];
+		public array  $time;
+		public array  $speed     = [];                    // in KPH
+		public array  $altitudes = [];                    // in Meter
+		public array  $distance  = [];                    // in Meter
+		public array  $hr;                                // in BPM
+		public array  $cadence;                           // in RPM
+		public array  $grade_raw = [];                    // in percent
+		public array  $grade     = [];                    // in percent
+		public array  $power     = [];                    // in W
+		public array  $progress  = [];                    // in percent
+		public array  $temp      = [];
+		public string $basedir   = "";
 		
 		private $normalize_count = 10;
 		
@@ -250,15 +251,15 @@
 				$spls[1]->addValue(number_format($this->altitudes[$i], 1));
 				$spls[2]->addValue($this->cadence[$i]);
 				$spls[3]->addValue($this->speed[$i]);
-				$spls[4]->addValue(round($this->distance[$i] * 100) /100.0);
-				$spls[5]->addValue(number_format($this->grade[$i],2));
+				$spls[4]->addValue(round($this->distance[$i] * 100) / 100.0);
+				$spls[5]->addValue(number_format($this->grade[$i], 2));
 				$spls[6]->addValue($this->power[$i]);
 				$spls[7]->addValue(number_format($this->distance[$i] / $total_dist, 3));
-				$spls[8]->addValue(number_format($this->temp[$i],2));
+				$spls[8]->addValue(number_format($this->temp[$i], 2));
 			}
 			
 			foreach ($spls as $s) {
-				$s->generate();
+				$s->generate($this->basedir);
 			}
 		}
 		

@@ -7,7 +7,6 @@
 	
 	use DateTime;
 	use DateTimeZone;
-	use app\Model\GPSData;
 	
 	class GPX extends GPSData {
 		

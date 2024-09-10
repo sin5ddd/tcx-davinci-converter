@@ -11,7 +11,9 @@
   ],
   "require": {
     "ext-simplexml": "*",
-    "meyfa/php-svg": "v0.15.0"
+    "meyfa/php-svg": "v0.15.0",
+    "ext-zip": "*",
+    "ext-fileinfo": "*"
   },
   "autoload": {
     "psr-4": {

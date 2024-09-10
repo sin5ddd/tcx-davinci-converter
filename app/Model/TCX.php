@@ -2,14 +2,7 @@
 	
 	namespace app\Model;
 	
-	use SVG\SVG;
 	use DateTime;
-	use SimpleXMLElement;
-	use DateTimeImmutable;
-	use SVG\Nodes\Shapes\SVGRect;
-	use SVG\Nodes\Shapes\SVGCircle;
-	use SVG\Nodes\Shapes\SVGPolygon;
-	use SVG\Nodes\Shapes\SVGPolyline;
 	
 	/**
 	 * Generating Overlay Data from Garmin TCX For Davinci Resolve
