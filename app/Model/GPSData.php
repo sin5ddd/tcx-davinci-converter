@@ -22,6 +22,7 @@
 		public array  $time;
 		public array  $speed     = [];                    // in KPH
 		public array  $altitudes = [];                    // in Meter
+		public array  $altitudes_raw = [];
 		public array  $distance  = [];                    // in Meter
 		public array  $hr;                                // in BPM
 		public array  $cadence;                           // in RPM
@@ -32,7 +33,7 @@
 		public array  $temp      = [];
 		public string $basedir   = "";
 		
-		private $normalize_count = 10;
+		private int $normalize_count = 10;
 		
 		public function setNormalizeCount(int $normalize_count): GPSData {
 			$this->normalize_count = $normalize_count;
@@ -67,6 +68,46 @@
 		public function setSubColor(string $subColor): GPSData {
 			$this->subColor = $subColor;
 			return $this;
+		}
+		
+		protected function lerpAltitude(): void {
+			// 高度は誤差が大きいため平滑化する
+			$a_tmp = [];
+			for ($j = 0; $j < $this->normalize_count; $j++) {
+				$a_tmp[] = $this->altitudes_raw[0];
+			}
+			foreach ($this->altitudes_raw as $a) {
+				array_pop($a_tmp);
+				array_unshift($a_tmp, $a);
+				$this->altitudes[] = array_sum($a_tmp) / $this->normalize_count;
+			}
+		}
+		
+		protected function lerpGradeAndSpeed(): void {
+			$g_tmp = [];
+			for ($i = 0; $i < $this->normalize_count; $i++) {
+				$g_tmp[] = 0;
+			}
+			for ($j = 0; $j < sizeof($this->distance); $j++) {
+				if ($j == 0) {
+					$a_delta = 0;
+					$d_delta = 0;
+				} else {
+					$a_delta = $this->altitudes[$j] - $this->altitudes[$j - 1];
+					$d_delta = $this->distance[$j] - $this->distance[$j - 1];
+				}
+				
+				$value = abs($d_delta) < 0.001
+					? 0
+					: $a_delta / $d_delta * 100;
+				if ($value == 0 and $j > 0) {
+					$value = $this->grade[$j - 1];
+				}
+				array_unshift($g_tmp, $value);
+				array_pop($g_tmp);
+				$this->grade[] = round(array_sum($g_tmp) / $this->normalize_count ,1);
+				$this->speed[] = round($d_delta * 3600 / 1000);
+			}
 		}
 		
 		private string $mainColor = '#33ac00';
@@ -160,72 +201,12 @@
 			return $this->normalize_count;
 		}
 		
-		protected function makeJson(int $framerate = 30) {
-			/**
-			 * Export format:
-			 *
-			 * {
-			 *     "00:00:00:00": {
-			 *         'HOUR': 7,
-			 *         'MIN' : 30,
-			 *         'SEC' : 12,
-			 *         'HR':75,
-			 *         'SPEED': 25.2,
-			 *         'GRADE': -1.2
-			 *     }
-			 * }
-			 *
-			 * todo: calc easing data per frame from second
-			 * todo: easing data :
-			 */
-			$data       = [];
-			$start_time = $this->time[0];
-			$start_dist = $this->distance[0];
-			$total_dist = $this->distance[sizeof($this->distance) - 1] - $start_dist;
-			$p_point    = null;
-			
-			for ($i = 0; $i < sizeof($this->latitude); $i++) {
-				
-				/** @var \DateInterval $tc */
-				$tc     = $this->time[$i]->diff($start_time);
-				$tc_str = $tc->format('%H:%I:%S:00');
-				$c_dist = $this->distance[$i] - $start_dist;
-				$point  = new JSONPoint();
-				
-				$point
-					->setTC($tc_str)
-					->setHOUR($this->time[$i]->format('H'))
-					->setMIN($this->time[$i]->format('m'))
-					->setSEC($this->time[$i]->format('s'))
-					->setFRAME('00')
-					->formatTime()
-					->setHR($this->hr[$i])
-					->setALT($this->altitudes[$i])
-					->setCAD($this->cadence[$i])
-					->setSPEED($this->speed[$i])
-					->setDIST($c_dist)
-					->setGRADE($this->grade[$i])
-					->setPROGRESS($c_dist / $total_dist)
-				;
-				if ($p_point) {
-					$arr = $point->ease($p_point, $framerate);
-					foreach ($arr as $p) {
-						$data[$p->TC] = $p;
-					}
-				} else {
-					$data[$point->TC] = $point;
-				}
-				$p_point = $point;
-			}
-			
-			return json_encode($data);
-		}
 		
 		/**
 		 *
 		 * @param int $framerate
 		 *
-		 * @return false|string
+		 * @return void
 		 */
 		
 		
