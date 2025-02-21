@@ -69,16 +69,16 @@
 			return $this;
 		}
 		
-		private $mainColor    = '#33ac00';
-		private $subColor     = '#228800';
-		private $mainWidth    = 5;
-		private $shadowColor  = '#33333355';
-		private $shadowWidth  = 6;
-		private $shadowOffset = 5;
+		private string $mainColor = '#33ac00';
+		private string $subColor  = '#228800';
+		private int    $mainWidth = 5;
+		private string $shadowColor = '#33333355';
+		private int    $shadowWidth = 6;
+		private int $shadowOffset = 5;
 		
 		public function __construct() { }
 		
-		public function makeMapSVG() {
+		public function makeMapSVG(): SVG {
 			
 			// マップSVG用の定数を算出
 			$maxLng   = max($this->longitude);
@@ -248,14 +248,14 @@
 			];
 			for ($i = 0; $i < sizeof($this->latitude); $i++) {
 				$spls[0]->addValue($this->hr[$i]);
-				$spls[1]->addValue(number_format($this->altitudes[$i], 1));
+				$spls[1]->addValue(round($this->altitudes[$i], 1));
 				$spls[2]->addValue($this->cadence[$i]);
 				$spls[3]->addValue($this->speed[$i]);
-				$spls[4]->addValue(round($this->distance[$i] * 100) / 100.0);
-				$spls[5]->addValue(number_format($this->grade[$i], 2));
+				$spls[4]->addValue(round($this->distance[$i],2));
+				$spls[5]->addValue(round($this->grade[$i], 2));
 				$spls[6]->addValue($this->power[$i]);
-				$spls[7]->addValue(number_format($this->distance[$i] / $total_dist, 3));
-				$spls[8]->addValue(number_format($this->temp[$i], 2));
+				$spls[7]->addValue(round($this->distance[$i] / $total_dist, 3));
+				$spls[8]->addValue(round($this->temp[$i], 2));
 			}
 			
 			foreach ($spls as $s) {

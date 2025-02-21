@@ -15,7 +15,7 @@
 			$this->framerate = $framerate;
 		}
 		
-		public function addValue(int|float $v): void {
+		public function addValue($v): void {
 			$this->values[] = $v;
 		}
 		
@@ -23,11 +23,11 @@
 			$str = "DFSP";
 			for ($i = 0; $i < sizeof($this->values); $i++) {
 				$frame = $this->framerate * $i;
-				$str   .= "\n$frame ".$this->values[$i];
+				$str   .= "\n$frame " . $this->values[$i];
 			}
 			if (!file_exists($dest)) {
 				mkdir($dest);
 			}
-			file_put_contents($dest . "/" . $this->filename.".spl", $str);
+			file_put_contents($dest . "/" . $this->filename . ".spl", $str);
 		}
 	}
