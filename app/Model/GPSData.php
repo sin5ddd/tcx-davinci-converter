@@ -97,14 +97,18 @@
 					$d_delta = $this->distance[$j] - $this->distance[$j - 1];
 				}
 				
-				$value = abs($d_delta) < 0.001
+				$value = abs($d_delta) < 1 // 移動距離1m未満の場合は高度の計算は誤差が大きいのでしない
 					? 0
 					: $a_delta / $d_delta * 100;
+				
 				if ($value == 0 and $j > 0) {
+					// 移動距離1m未満の場合は角度は1個前の値を引き継ぐ
 					$value = $this->grade[$j - 1];
 				}
 				array_unshift($g_tmp, $value);
 				array_pop($g_tmp);
+				
+				// 前後normalize_count個の値を平均して格納
 				$this->grade[] = round(array_sum($g_tmp) / $this->normalize_count ,1);
 				$this->speed[] = round($d_delta * 3600 / 1000);
 			}

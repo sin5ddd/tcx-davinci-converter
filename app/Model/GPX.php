@@ -23,7 +23,6 @@
 				if (sizeof($this->latitude) > 1) {
 					$this->distance[] = $this->distance[sizeof($this->distance) - 1]
 					                    + $this->calc_distance();
-					var_dump($this->calc_distance());
 				} else {
 					$this->distance[] = 0;
 				}
@@ -35,7 +34,7 @@
 				$this->altitudes_raw[] = floatval($t->ele);
 			}
 			$total_dist = max($this->distance);
-			var_dump($total_dist);
+			
 			for ($i = 0; $i < sizeof($this->distance); $i++) {
 				$this->progress[] = $this->distance[$i] / $total_dist;
 			}
